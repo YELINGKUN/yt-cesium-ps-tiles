@@ -112,11 +112,19 @@
 
         <!-- Vue3地球容器组件 -->
         <div class="earth-container-section">
-            <h3>Vue3地球容器组件</h3>
+            <h3>Vue3地球容器组件 - 图层管理测试</h3>
             <div class="earth-wrapper">
                 <EarthContainer container-id="vueEarthContainer" :viewer-options="earthViewerOptions"
                     :initial-view="earthInitialView" @earth-ready="onEarthReady" @model-click="onModelClick"
                     @empty-click="onEmptyClick" @log="onEarthLog" />
+            </div>
+            <div class="earth-test-controls">
+                <button @click="runEarthLayerTests" :disabled="!earthInstance" class="test-button">
+                    运行图层管理测试
+                </button>
+                <button @click="clearEarthLayers" :disabled="!earthInstance" class="clear-button">
+                    清除所有图层
+                </button>
             </div>
         </div>
 

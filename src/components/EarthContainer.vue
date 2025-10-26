@@ -23,6 +23,35 @@
             </div>
 
             <div class="control-group">
+                <h4>图层管理</h4>
+                <div class="layer-controls">
+                    <button @click="addTdtVecLayer" :disabled="!ffCesium">天地图矢量</button>
+                    <button @click="addTdtCvaLayer" :disabled="!ffCesium">天地图注记</button>
+                    <button @click="addTdtCiaLayer" :disabled="!ffCesium">天地图影像注记</button>
+                    <button @click="addTdtCtaLayer" :disabled="!ffCesium">天地图道路</button>
+                    <button @click="addArcgisImgLayer" :disabled="!ffCesium">ArcGIS影像</button>
+                    <button @click="addCustomLayer" :disabled="!ffCesium">自定义图层</button>
+                    <button @click="addWmsLayer" :disabled="!ffCesium">WMS图层</button>
+                </div>
+                <div class="layer-list">
+                    <h5>已加载图层 ({{ loadedLayers.length }})</h5>
+                    <div v-for="(layer, index) in loadedLayers" :key="index" class="layer-item">
+                        <span class="layer-name">{{ layer.name }}</span>
+                        <div class="layer-controls-small">
+                            <input type="range" min="0" max="1" step="0.1" :value="layer.alpha"
+                                @input="setLayerAlpha(layer, $event.target.value)" class="alpha-slider" />
+                            <button @click="removeLayer(layer)" class="remove-btn">×</button>
+                        </div>
+                    </div>
+                    <div class="layer-test-controls">
+                        <button @click="runLayerTests" :disabled="!ffCesium" class="test-btn">运行图层测试</button>
+                        <button @click="clearAllLayers" :disabled="!ffCesium || loadedLayers.length === 0"
+                            class="clear-btn">清除所有图层</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
                 <h4>状态信息</h4>
                 <div class="status-info">
                     <span>经度: {{ currentPosition.lng.toFixed(6) }}</span>
@@ -90,7 +119,9 @@ export default {
                 lat: 0,
                 height: 0
             },
-            positionUpdateTimer: null
+            positionUpdateTimer: null,
+            loadedLayers: [],
+            layerCounter: 0
         };
     },
     mounted() {
@@ -294,6 +325,9 @@ export default {
                 this.positionUpdateTimer = null;
             }
 
+            // 清理所有图层
+            this.clearAllLayers();
+
             if (this.ffCesium && this.ffCesium.viewer) {
                 this.ffCesium.viewer.destroy();
                 this.ffCesium = null;
@@ -330,6 +364,192 @@ export default {
                 this.ffCesium.viewer.entities.remove(entity);
                 this.addLog('实体已移除', 'info');
             }
+        },
+
+        // ========== 图层管理方法 ==========
+
+        // 添加天地图矢量图层
+        addTdtVecLayer() {
+            if (this.ffCesium) {
+                try {
+                    const layer = this.ffCesium.addTdtVecLayer();
+                    this.addLayerToList('天地图矢量', layer);
+                    this.addLog('天地图矢量图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加天地图矢量图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加天地图注记图层
+        addTdtCvaLayer() {
+            if (this.ffCesium) {
+                try {
+                    const layer = this.ffCesium.addTdtCvaLayer();
+                    this.addLayerToList('天地图注记', layer);
+                    this.addLog('天地图注记图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加天地图注记图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加天地图影像注记图层
+        addTdtCiaLayer() {
+            if (this.ffCesium) {
+                try {
+                    const layer = this.ffCesium.addTdtCiaLayer();
+                    this.addLayerToList('天地图影像注记', layer);
+                    this.addLog('天地图影像注记图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加天地图影像注记图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加天地图道路图层
+        addTdtCtaLayer() {
+            if (this.ffCesium) {
+                try {
+                    const layer = this.ffCesium.addTdtCtaLayer();
+                    this.addLayerToList('天地图道路', layer);
+                    this.addLog('天地图道路图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加天地图道路图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加ArcGIS影像图层
+        addArcgisImgLayer() {
+            if (this.ffCesium) {
+                try {
+                    const layer = this.ffCesium.addArcgisImgLayer();
+                    this.addLayerToList('ArcGIS影像', layer);
+                    this.addLog('ArcGIS影像图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加ArcGIS影像图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加自定义图层
+        addCustomLayer() {
+            if (this.ffCesium) {
+                try {
+                    // 使用OpenStreetMap作为示例
+                    const url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                    const layer = this.ffCesium.addCustomLayer(url);
+                    this.addLayerToList('OpenStreetMap', layer);
+                    this.addLog('OpenStreetMap图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加自定义图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加WMS图层
+        addWmsLayer() {
+            if (this.ffCesium) {
+                try {
+                    // 使用示例WMS服务
+                    const url = 'https://demo.boundlessgeo.com/geoserver/ows';
+                    const layerName = 'ne:ne_10m_admin_0_countries';
+                    const layer = this.ffCesium.addWmslayer(url, layerName);
+                    this.addLayerToList('WMS国家边界', layer);
+                    this.addLog('WMS图层已添加', 'success');
+                } catch (error) {
+                    this.addLog(`添加WMS图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 添加图层到列表
+        addLayerToList(name, layer) {
+            const layerInfo = {
+                id: ++this.layerCounter,
+                name: name,
+                layer: layer,
+                alpha: 1.0,
+                visible: true
+            };
+            this.loadedLayers.push(layerInfo);
+        },
+
+        // 设置图层透明度
+        setLayerAlpha(layerInfo, alpha) {
+            if (layerInfo.layer) {
+                layerInfo.layer.alpha = parseFloat(alpha);
+                layerInfo.alpha = parseFloat(alpha);
+                this.addLog(`图层 ${layerInfo.name} 透明度设置为 ${alpha}`, 'info');
+            }
+        },
+
+        // 移除图层
+        removeLayer(layerInfo) {
+            if (this.ffCesium && layerInfo.layer) {
+                try {
+                    this.ffCesium.removeMapLayer(layerInfo.layer);
+                    const index = this.loadedLayers.findIndex(l => l.id === layerInfo.id);
+                    if (index > -1) {
+                        this.loadedLayers.splice(index, 1);
+                    }
+                    this.addLog(`图层 ${layerInfo.name} 已移除`, 'success');
+                } catch (error) {
+                    this.addLog(`移除图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 清除所有图层
+        clearAllLayers() {
+            if (this.ffCesium) {
+                try {
+                    this.loadedLayers.forEach(layerInfo => {
+                        if (layerInfo.layer) {
+                            this.ffCesium.removeMapLayer(layerInfo.layer);
+                        }
+                    });
+                    this.loadedLayers = [];
+                    this.addLog('所有图层已清除', 'success');
+                } catch (error) {
+                    this.addLog(`清除图层失败: ${error.message}`, 'error');
+                }
+            }
+        },
+
+        // 图层测试功能
+        runLayerTests() {
+            this.addLog('开始图层管理测试...', 'info');
+
+            // 测试1: 添加多种图层
+            setTimeout(() => {
+                this.addTdtVecLayer();
+            }, 500);
+
+            setTimeout(() => {
+                this.addTdtCvaLayer();
+            }, 1000);
+
+            setTimeout(() => {
+                this.addArcgisImgLayer();
+            }, 1500);
+
+            // 测试2: 调整透明度
+            setTimeout(() => {
+                if (this.loadedLayers.length > 0) {
+                    this.setLayerAlpha(this.loadedLayers[0], 0.5);
+                }
+            }, 2000);
+
+            // 测试3: 移除图层
+            setTimeout(() => {
+                if (this.loadedLayers.length > 1) {
+                    this.removeLayer(this.loadedLayers[1]);
+                }
+            }, 3000);
+
+            this.addLog('图层管理测试完成', 'success');
         }
     }
 };
@@ -451,6 +671,123 @@ export default {
     margin: 0;
 }
 
+/* 图层管理样式 */
+.layer-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.layer-controls button {
+    padding: 6px 8px;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.layer-list {
+    margin-top: 10px;
+    border-top: 1px solid #333;
+    padding-top: 10px;
+}
+
+.layer-list h5 {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    color: #00d4ff;
+}
+
+.layer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.layer-name {
+    font-size: 11px;
+    color: #ccc;
+    flex: 1;
+}
+
+.layer-controls-small {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.alpha-slider {
+    width: 60px;
+    height: 20px;
+    background: #333;
+    outline: none;
+    border-radius: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.alpha-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.alpha-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.remove-btn {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.remove-btn:hover {
+    background: #c82333;
+}
+
+.layer-test-controls {
+    margin-top: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.test-btn {
+    background: #28a745;
+    flex: 1;
+}
+
+.test-btn:hover:not(:disabled) {
+    background: #218838;
+}
+
+.clear-btn {
+    background: #dc3545;
+    flex: 1;
+}
+
+.clear-btn:hover:not(:disabled) {
+    background: #c82333;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .control-panel {
@@ -471,6 +808,30 @@ export default {
 
     .status-info {
         font-size: 10px;
+    }
+
+    .layer-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .layer-controls button {
+        font-size: 10px;
+        padding: 5px 6px;
+    }
+
+    .layer-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .layer-controls-small {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .alpha-slider {
+        width: 80px;
     }
 }
 </style>
