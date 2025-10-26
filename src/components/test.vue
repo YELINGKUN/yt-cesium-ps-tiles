@@ -110,6 +110,16 @@
             </div>
         </div>
 
+        <!-- Vue3地球容器组件 -->
+        <div class="earth-container-section">
+            <h3>Vue3地球容器组件</h3>
+            <div class="earth-wrapper">
+                <EarthContainer container-id="vueEarthContainer" :viewer-options="earthViewerOptions"
+                    :initial-view="earthInitialView" @earth-ready="onEarthReady" @model-click="onModelClick"
+                    @empty-click="onEmptyClick" @log="onEarthLog" />
+            </div>
+        </div>
+
         <!-- 日志面板 -->
         <div class="log-panel">
             <h3>操作日志</h3>
@@ -136,9 +146,13 @@ import {
     advancedUsageExample
 } from '../CesiumPlus/core/manager-example.js';
 import { quickTest, performanceTest } from '../CesiumPlus/core/manager-test.js';
+import EarthContainer from './EarthContainer.vue';
 
 export default {
     name: 'CesiumPlusManagerTest',
+    components: {
+        EarthContainer
+    },
     data() {
         return {
             loading: false,
@@ -154,7 +168,31 @@ export default {
                 hasDefaultInstance: false
             },
             logs: [],
-            eventListenerCallback: null
+            eventListenerCallback: null,
+            // Vue3地球容器相关数据
+            earthViewerOptions: {
+                animation: false,
+                baseLayerPicker: false,
+                baseLayer: false,
+                fullscreenButton: false,
+                geocoder: false,
+                homeButton: false,
+                infoBox: false,
+                sceneModePicker: false,
+                scene3DOnly: false,
+                selectionIndicator: false,
+                timeline: false,
+                navigationHelpButton: false,
+                shadows: true,
+                shouldAnimate: true,
+            },
+            earthInitialView: {
+                lng: 129.85897571573392,
+                lat: 46.62706812460703,
+                height: 8000,
+                pitchRadiu: -40,
+            },
+            earthInstance: null
         };
     },
     computed: {
@@ -362,6 +400,24 @@ export default {
             } catch (error) {
                 this.addLog(`清理实例出错: ${error.message}`, 'error');
             }
+        },
+
+        // Vue3地球容器事件处理
+        onEarthReady(ffCesiumInstance) {
+            this.earthInstance = ffCesiumInstance;
+            this.addLog('Vue3地球容器初始化完成', 'success');
+        },
+
+        onModelClick(model) {
+            this.addLog(`Vue3地球容器 - 点击模型: ${model.id || '未知'}`, 'event');
+        },
+
+        onEmptyClick() {
+            this.addLog('Vue3地球容器 - 点击空白区域', 'event');
+        },
+
+        onEarthLog(logData) {
+            this.addLog(`[Vue3地球] ${logData.message}`, logData.type);
         }
     }
 };
@@ -535,6 +591,28 @@ button.danger:hover:not(:disabled) {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
+}
+
+.earth-container-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 30px;
+}
+
+.earth-container-section h3 {
+    margin: 0 0 15px 0;
+    color: #495057;
+    font-size: 1.2em;
+}
+
+.earth-wrapper {
+    width: 100%;
+    height: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e9ecef;
 }
 
 .container-section {
