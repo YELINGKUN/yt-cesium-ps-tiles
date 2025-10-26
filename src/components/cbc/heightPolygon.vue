@@ -1,10 +1,7 @@
 <template>
-  <div
-    id="cesiumContainer"
-    style="
+  <div id="cesiumContainer" style="
       background-image: url(./FFCesiumExample/advancedTools/images/back.png);
-    "
-  ></div>
+    "></div>
 </template>
 <script setup>
 import { ref, onMounted, nextTick } from "vue";
@@ -56,20 +53,7 @@ onMounted(() => {
     pitchRadiu: -52,
   });
 
-  //   const orangePolygon = ffCesium.viewer.entities.add({
-  //     name: "Orange polygon with per-position heights and outline",
-  //     polygon: {
-  //       hierarchy: Cesium.Cartesian3.fromDegreesArrayHeights([
-  //         118.09633969744071, 24.46833535878802, 500, 118.10357867498391,
-  //         24.468017417930763, 1000, 118.11272376085279, 24.46789086769148, 2000,
-  //         118.11219847075068, 24.474080971248686, 2000, 118.10258618951411,
-  //         24.474450353387315, 800, 118.09479782452333, 24.47437713898406, 500,
-  //       ]),
-  //       extrudedHeight: 0,
-  //       perPositionHeight: true,
-  //       material: Cesium.Color.ORANGE.withAlpha(1),
-  //     },
-  //   });
+
 
   const orangePolygon1 = ffCesium.viewer.entities.add({
     name: "Orange polygon with per-position heights and outline",

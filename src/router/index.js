@@ -13,26 +13,6 @@ const routes = [
     component: () => import("../components/HelloWorld.vue"),
   },
   {
-    path: "/polylineFluid",
-    component: () => import("../components/cbc/polylineFluid.vue"),
-  },
-  {
-    path: "/polylineFluid1",
-    component: () => import("../components/cbc/polylineFluid1.vue"),
-  },
-  {
-    path: "/corridorFluid",
-    component: () => import("../components/cbc/corridorFluid.vue"),
-  },
-  {
-    path: "/model",
-    component: () => import("../components/cbc/model.vue"),
-  },
-  {
-    path: "/brightness",
-    component: () => import("../components/cbc/brightness.vue"),
-  },
-  {
     path: "/area",
     component: () => import("../components/cbc/area.vue"),
   },
@@ -56,6 +36,15 @@ const routes = [
   {
     path: "/twin",
     component: () => import("../components/twin/index.vue"),
+  },
+  {
+    path: "/test",
+    name: "CesiumPlusManagerTest",
+    component: () => import("../components/test.vue"),
+    meta: {
+      title: "CesiumPlusManager 测试",
+      description: "多实例管理器功能测试页面",
+    },
   },
 ];
 const router = createRouter({

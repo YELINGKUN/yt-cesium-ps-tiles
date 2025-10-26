@@ -38,8 +38,9 @@ import FlyRoam from "../senior/libs/flyRoam/index.js";
 
 //入口文件
 /**
- * FFCesium类用于封装Cesium的viewer，提供一系列地图操作方法。
+ * CesiumPlus类用于封装Cesium的viewer，提供一系列地图操作方法。
  * 通过构造函数初始化viewer，并根据配置选项设置地图的初始状态。
+ * 采用单例模式，确保全局只有一个实例。
  */
 class CesiumPlus {
   Version = "V1.0.0";
@@ -49,8 +50,53 @@ class CesiumPlus {
   rotateTool;
   flyRoam;
 
+  // 单例模式相关属性
+  static _instance = null;
+  static _isInitialized = false;
+
   /**
-   * FFCesium类的构造函数。
+   * 获取CesiumPlus单例实例
+   * @param {string} id - Cesium视图的DOM元素ID。
+   * @param {Object} option - 初始化viewer的选项。
+   * @returns {CesiumPlus} CesiumPlus实例
+   */
+  static getInstance(id, option) {
+    if (!CesiumPlus._instance) {
+      if (!id) {
+        throw new Error("CesiumPlus: 首次创建实例时必须提供DOM元素ID");
+      }
+      CesiumPlus._instance = new CesiumPlus(id, option);
+      CesiumPlus._isInitialized = true;
+    } else if (CesiumPlus._isInitialized && id) {
+      console.warn("CesiumPlus: 实例已存在，忽略新的初始化参数");
+    }
+    return CesiumPlus._instance;
+  }
+
+  /**
+   * 检查是否已有实例
+   * @returns {boolean} 是否已有实例
+   */
+  static hasInstance() {
+    return CesiumPlus._instance !== null;
+  }
+
+  /**
+   * 销毁单例实例
+   */
+  static destroyInstance() {
+    if (CesiumPlus._instance) {
+      // 清理viewer资源
+      if (CesiumPlus._instance.viewer) {
+        CesiumPlus._instance.viewer.destroy();
+      }
+      CesiumPlus._instance = null;
+      CesiumPlus._isInitialized = false;
+    }
+  }
+
+  /**
+   * CesiumPlus类的构造函数（私有化，通过getInstance调用）
    * @param {string} id - Cesium视图的DOM元素ID。
    * @param {Object} option - 初始化viewer的选项。
    */
@@ -90,8 +136,8 @@ class CesiumPlus {
 
     let time2 = new Date().getTime();
 
-    console.log("FFCesium所使用Cesium版本", Cesium.VERSION);
-    console.log("FFCesium注册方法耗时（ms）", time2 - time1);
+    console.log("CesiumPlus所使用Cesium版本", Cesium.VERSION);
+    console.log("CesiumPlus注册方法耗时（ms）", time2 - time1);
 
     this.cesiumID = id;
     if (!option) {
@@ -111,7 +157,7 @@ class CesiumPlus {
     this.flyRoam = new FlyRoam(this);
 
     this.addPrimitiveInit();
-    console.log("FFCesium构建总耗时（ms）", time3 - time1);
+    console.log("CesiumPlus构建总耗时（ms）", time3 - time1);
   }
 
   /**
