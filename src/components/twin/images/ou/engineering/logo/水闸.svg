@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>水闸</title>
+    <g id="水闸" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M4,5 L4,19 L19.9874384,19 L19.9874384,5 L4,5 Z M18.8454786,17.4444444 L5.14195989,17.4444444 L5.14195989,6.55555556 L18.8454786,6.55555556 L18.8454786,17.4444444 Z M19.9874384,5 L4,5 L4,6.55555556 L10.3949754,11.5333333 L4,17.4444444 L4,19 L19.9874384,19 L19.9874384,17.4444444 L13.5924631,11.5333333 L20,6.01111111 L19.9874384,5 Z" id="形状" fill="#FFFFFF" fill-rule="nonzero"></path>
+    </g>
+</svg>
