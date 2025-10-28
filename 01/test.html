@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success { border-color: #4CAF50; background: #f1f8e9; }
+        .error { border-color: #f44336; background: #ffebee; }
+        .info { border-color: #2196F3; background: #e3f2fd; }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Cesium 三维管线系统 - 错误诊断</h1>
+        
+        <div class="test-item info">
+            <h3>📋 检查项目</h3>
+            <p>正在检查 kimi-index.html 文件的常见问题...</p>
+        </div>
+
+        <div class="test-item" id="vue-test">
+            <h3>Vue 3 加载测试</h3>
+            <p id="vue-status">检查中...</p>
+        </div>
+
+        <div class="test-item" id="cesium-test">
+            <h3>Cesium 加载测试</h3>
+            <p id="cesium-status">检查中...</p>
+        </div>
+
+        <div class="test-item" id="console-test">
+            <h3>控制台错误检查</h3>
+            <p id="console-status">检查中...</p>
+        </div>
+
+        <div class="test-item">
+            <h3>🔗 快速链接</h3>
+            <button onclick="window.open('kimi-index.html', '_blank')">打开主页面</button>
+            <button onclick="runTests()">重新测试</button>
+            <button onclick="clearConsole()">清空控制台</button>
+        </div>
+
+        <div class="test-item info">
+            <h3>💡 常见问题解决方案</h3>
+            <ul>
+                <li><strong>Vue 加载失败：</strong>检查网络连接，确保能访问 CDN</li>
+                <li><strong>Cesium 加载失败：</strong>检查 Cesium 资源路径是否正确</li>
+                <li><strong>控制台错误：</strong>查看浏览器开发者工具的控制台</li>
+                <li><strong>页面空白：</strong>检查 JavaScript 错误，确保所有依赖正确加载</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function updateTestStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            const statusElement = element.querySelector('p');
+            element.className = `test-item ${status}`;
+            statusElement.textContent = message;
+        }
+
+        function testVue() {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js';
+                script.type = 'module';
+                script.onload = () => {
+                    updateTestStatus('vue-test', 'success', '✅ Vue 3 加载成功');
+                    resolve(true);
+                };
+                script.onerror = () => {
+                    updateTestStatus('vue-test', 'error', '❌ Vue 3 加载失败');
+                    resolve(false);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        function testCesium() {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/cesium@1.99/Build/Cesium/Cesium.js';
+                script.onload = () => {
+                    if (typeof Cesium !== 'undefined') {
+                        updateTestStatus('cesium-test', 'success', '✅ Cesium 加载成功');
+                        resolve(true);
+                    } else {
+                        updateTestStatus('cesium-test', 'error', '❌ Cesium 对象未定义');
+                        resolve(false);
+                    }
+                };
+                script.onerror = () => {
+                    updateTestStatus('cesium-test', 'error', '❌ Cesium 加载失败');
+                    resolve(false);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        function checkConsole() {
+            // 监听控制台错误
+            const originalError = console.error;
+            let errorCount = 0;
+            
+            console.error = function(...args) {
+                errorCount++;
+                originalError.apply(console, args);
+            };
+
+            setTimeout(() => {
+                if (errorCount === 0) {
+                    updateTestStatus('console-test', 'success', '✅ 未发现控制台错误');
+                } else {
+                    updateTestStatus('console-test', 'error', `❌ 发现 ${errorCount} 个控制台错误`);
+                }
+            }, 3000);
+        }
+
+        async function runTests() {
+            updateTestStatus('vue-test', 'info', '检查中...');
+            updateTestStatus('cesium-test', 'info', '检查中...');
+            updateTestStatus('console-test', 'info', '检查中...');
+
+            await testVue();
+            await testCesium();
+            checkConsole();
+        }
+
+        function clearConsole() {
+            console.clear();
+            updateTestStatus('console-test', 'info', '控制台已清空');
+        }
+
+        // 页面加载时自动运行测试
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简化测试 - Cesium 三维管线系统</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #000;
+        color: white;
+      }
+      #app {
+        display: flex;
+        height: 100vh;
+      }
+      .sidebar {
+        width: 300px;
+        background: #1a1a1a;
+        padding: 20px;
+        border-right: 1px solid #333;
+      }
+      .main {
+        flex: 1;
+        position: relative;
+      }
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+      }
+      .status {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      .error {
+        color: #ff4757;
+      }
+      .success {
+        color: #00d4aa;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="sidebar">
+        <h2>🌐 Cesium 三维管线系统</h2>
+        <div id="status">
+          <div>状态: <span id="status-text">初始化中...</span></div>
+          <div>Vue: <span id="vue-status">检查中...</span></div>
+          <div>Cesium: <span id="cesium-status">检查中...</span></div>
+        </div>
+        <div style="margin-top: 20px">
+          <button onclick="testCesium()">测试 Cesium</button>
+          <button onclick="testVue()">测试 Vue</button>
+        </div>
+      </div>
+      <div class="main">
+        <div id="cesiumContainer"></div>
+        <div class="status" id="coordinates">
+          <div>经度: <span id="lon">116.391</span>°</div>
+          <div>纬度: <span id="lat">39.907</span>°</div>
+          <div>高程: <span id="height">42</span> m</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 状态更新函数
+      function updateStatus(elementId, text, isError = false) {
+        const element = document.getElementById(elementId);
+        element.textContent = text;
+        element.className = isError ? "error" : "success";
+      }
+
+      // 测试 Vue 3
+      function testVue() {
+        updateStatus("vue-status", "加载中...", false);
+
+        const script = document.createElement("script");
+        script.type = "module";
+        script.textContent = `
+                import { createApp, reactive } from 'https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js';
+                
+                const app = createApp({
+                    setup() {
+                        const state = reactive({
+                            message: 'Vue 3 工作正常!'
+                        });
+                        return { state };
+                    }
+                });
+                
+                app.mount('#app');
+                window.vueTest = true;
+            `;
+
+        script.onload = () => {
+          setTimeout(() => {
+            if (window.vueTest) {
+              updateStatus("vue-status", "✅ 工作正常", false);
+            } else {
+              updateStatus("vue-status", "❌ 加载失败", true);
+            }
+          }, 1000);
+        };
+
+        script.onerror = () => {
+          updateStatus("vue-status", "❌ 加载失败", true);
+        };
+
+        document.head.appendChild(script);
+      }
+
+      // 测试 Cesium
+      function testCesium() {
+        updateStatus("cesium-status", "加载中...", false);
+
+        window.CESIUM_BASE_URL =
+          "https://cdn.jsdelivr.net/npm/cesium@1.99/Build/Cesium/";
+        const script = document.createElement("script");
+        script.src = window.CESIUM_BASE_URL + "Cesium.js";
+
+        script.onload = () => {
+          try {
+            if (typeof Cesium !== "undefined") {
+              const viewer = new Cesium.Viewer("cesiumContainer", {
+                geocoder: false,
+                homeButton: false,
+                sceneModePicker: false,
+                baseLayerPicker: false,
+                navigationHelpButton: false,
+                animation: false,
+                timeline: false,
+                fullscreenButton: false,
+                vrButton: false,
+                infoBox: false,
+              });
+
+              // 设置初始视角
+              viewer.camera.setView({
+                destination: Cesium.Cartesian3.fromDegrees(
+                  116.391,
+                  39.907,
+                  1000
+                ),
+                orientation: {
+                  heading: Cesium.Math.toRadians(0.0),
+                  pitch: Cesium.Math.toRadians(-45.0),
+                  roll: 0.0,
+                },
+              });
+
+              // 添加示例实体
+              viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(116.391, 39.907, 0),
+                cylinder: {
+                  length: 1000,
+                  topRadius: 0.5,
+                  bottomRadius: 0.5,
+                  material: Cesium.Color.CYAN.withAlpha(0.8),
+                },
+              });
+
+              updateStatus("cesium-status", "✅ 工作正常", false);
+              updateStatus("status-text", "系统就绪", false);
+
+              // 鼠标移动更新坐标
+              viewer.cesiumWidget.screenSpaceEventHandler.setInputAction(
+                (event) => {
+                  const pickedPosition = viewer.camera.pickEllipsoid(
+                    event.endPosition,
+                    viewer.scene.globe.ellipsoid
+                  );
+                  if (pickedPosition) {
+                    const cartographic =
+                      Cesium.Cartographic.fromCartesian(pickedPosition);
+                    const longitude = Cesium.Math.toDegrees(
+                      cartographic.longitude
+                    );
+                    const latitude = Cesium.Math.toDegrees(
+                      cartographic.latitude
+                    );
+                    const height = cartographic.height;
+
+                    document.getElementById("lon").textContent =
+                      longitude.toFixed(6);
+                    document.getElementById("lat").textContent =
+                      latitude.toFixed(6);
+                    document.getElementById("height").textContent =
+                      height.toFixed(2);
+                  }
+                },
+                Cesium.ScreenSpaceEventType.MOUSE_MOVE
+              );
+            } else {
+              updateStatus("cesium-status", "❌ Cesium 未定义", true);
+            }
+          } catch (error) {
+            updateStatus(
+              "cesium-status",
+              "❌ 初始化失败: " + error.message,
+              true
+            );
+            console.error("Cesium 错误:", error);
+          }
+        };
+
+        script.onerror = () => {
+          updateStatus("cesium-status", "❌ 脚本加载失败", true);
+        };
+
+        document.head.appendChild(script);
+      }
+
+      // 页面加载时自动测试
+      window.addEventListener("load", () => {
+        testVue();
+        setTimeout(() => testCesium(), 2000);
+      });
+    </script>
+  </body>
+</html>
