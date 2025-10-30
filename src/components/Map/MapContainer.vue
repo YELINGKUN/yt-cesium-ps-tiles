@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { CesiumPlusManager } from '../../CesiumPlus/core/CesiumPlusManager.js';
+import CesiumPlusManager from '../../CesiumPlus/core/CesiumPlusManager.js';
 
 export default {
     name: 'MapContainer',
@@ -16,8 +16,22 @@ export default {
         },
         viewerOptions: {
             type: Object,
-            default: () => ({})
-        }
+            default: () => ({
+                animation: false,
+                baseLayerPicker: false,
+                baseLayer: false,
+                fullscreenButton: false,
+                homeButton: false,
+                infoBox: false,
+                sceneModePicker: false,
+                scene3DOnly: false,
+                selectionIndicator: false,
+                timeline: false,
+                navigationHelpButton: false,
+                shadows: true,
+                shouldAnimate: true,
+            })
+        },
     },
     data() {
         return {

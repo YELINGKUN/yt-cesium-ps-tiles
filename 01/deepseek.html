@@ -136,90 +136,144 @@
         display: flex;
         flex: 1;
         overflow: hidden;
+        position: relative;
       }
 
       /* 左侧工具面板 */
       .left-panel {
-        width: 280px;
+        width: 40px;
         background: linear-gradient(180deg, #1a1d2e 0%, #2a2d3e 100%);
         border-right: 1px solid rgba(77, 171, 247, 0.15);
         display: flex;
         flex-direction: column;
-        transition: all 0.3s ease;
-        overflow: hidden;
+        position: relative;
         box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+        z-index: 5;
+        overflow: visible;
       }
 
-      .left-panel.collapsed {
-        width: 52px;
-      }
-
-      .panel-header {
+      /* 左侧图标栏 */
+      .icon-bar {
+        width: 40px;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 14px 18px;
-        border-bottom: 1px solid rgba(77, 171, 247, 0.1);
-        background: rgba(255, 255, 255, 0.02);
-        min-height: 56px;
-      }
-
-      .panel-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: #e8eaed;
-        letter-spacing: 0.3px;
-        display: flex;
-        align-items: center;
+        flex-direction: column;
+        padding: 8px 0;
         gap: 8px;
+        overflow-y: auto;
+        overflow-x: visible;
+        scrollbar-width: none;
       }
 
-      .panel-title:before {
-        content: "⚡";
-        font-size: 14px;
-        color: #4dabf7;
+      .icon-bar::-webkit-scrollbar {
+        display: none;
       }
 
-      .collapse-btn {
+      /* 功能图标按钮 */
+      .function-icon {
+        width: 36px;
+        height: 36px;
+        margin: 0 auto;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(77, 171, 247, 0.2);
-        color: #e8eaed;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 12px;
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 18px;
         transition: all 0.2s ease;
+        position: relative;
       }
 
-      .collapse-btn:hover {
-        background: rgba(77, 171, 247, 0.1);
-        border-color: rgba(77, 171, 247, 0.4);
-        transform: scale(1.05);
+      .function-icon:hover {
+        background: rgba(77, 171, 247, 0.15);
+        border-color: rgba(77, 171, 247, 0.5);
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(77, 171, 247, 0.3);
       }
 
-      .panel-content {
-        flex: 1;
+      .function-icon.active {
+        background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+        border-color: #4dabf7;
+        box-shadow: 0 0 12px rgba(77, 171, 247, 0.5);
+      }
+
+      /* 悬停展开面板 */
+      .hover-panel {
+        position: fixed;
+        height: auto;
+        min-height: 100px;
+        max-height: calc(100vh - 100px);
+        width: 0;
+        background: linear-gradient(180deg, #1a1d2e 0%, #2a2d3e 100%);
+        border-right: 1px solid rgba(77, 171, 247, 0.15);
+        border-radius: 0 8px 8px 0;
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: width 0.25s ease-out, opacity 0.25s ease-out;
+        z-index: 10000;
+        pointer-events: none;
+        opacity: 0;
+        display: block;
+        /* 在图标右侧添加一个透明的连接区域，让鼠标移动更平滑 */
+        margin-left: -4px;
+      }
+
+      .hover-panel.show {
+        width: 280px !important;
+        pointer-events: auto;
+        opacity: 1;
+      }
+
+      .function-icon {
+        position: relative;
+      }
+
+      .left-panel {
+        overflow: visible;
+      }
+
+      .hover-panel-content {
+        width: 280px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
         overflow-y: auto;
-        padding: 12px;
+        overflow-x: hidden;
+        min-height: fit-content;
+        box-sizing: border-box;
         scrollbar-width: thin;
         scrollbar-color: rgba(77, 171, 247, 0.3) transparent;
       }
 
-      .panel-content::-webkit-scrollbar {
+      .hover-panel-content::-webkit-scrollbar {
         width: 4px;
       }
 
-      .panel-content::-webkit-scrollbar-track {
+      .hover-panel-content::-webkit-scrollbar-track {
         background: transparent;
       }
 
-      .panel-content::-webkit-scrollbar-thumb {
+      .hover-panel-content::-webkit-scrollbar-thumb {
         background: rgba(77, 171, 247, 0.3);
         border-radius: 2px;
+      }
+
+      .function-group {
+        margin-bottom: 8px;
+      }
+
+      .function-group-title {
+        font-size: 13px;
+        color: #4dabf7;
+        font-weight: 700;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(77, 171, 247, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
       /* 快速操作栏 */
@@ -541,7 +595,7 @@
       .info-tab {
         flex: 1;
         text-align: center;
-        padding: 12px 8px;
+        padding: 5px 8px;
         cursor: pointer;
         font-size: 12px;
         font-weight: 600;
@@ -965,17 +1019,25 @@
 
       /* 响应式设计 */
       @media (max-width: 1400px) {
-        .left-panel {
-          width: 260px;
-        }
         .right-panel {
           width: 300px;
+        }
+        .hover-panel.show {
+          width: 260px;
+        }
+        .hover-panel-content {
+          width: 260px;
         }
       }
 
       @media (max-width: 1200px) {
-        .left-panel,
         .right-panel {
+          width: 280px;
+        }
+        .hover-panel.show {
+          width: 240px;
+        }
+        .hover-panel-content {
           width: 240px;
         }
       }
@@ -1016,9 +1078,21 @@
           font-size: 12px;
         }
 
-        .left-panel,
+        .left-panel {
+          width: 40px;
+        }
+
         .right-panel {
           width: 200px;
+        }
+
+        .hover-panel.show {
+          width: 220px;
+        }
+
+        .hover-panel-content {
+          width: 220px;
+          padding: 12px;
         }
 
         .cesium-container {
@@ -1049,17 +1123,11 @@
       <div class="top-navbar">
         <div class="logo-section">
           <div class="logo">三维管线管理系统</div>
-          <div class="nav-divider"></div>
-          <div class="nav-buttons">
-            <button class="nav-btn primary"><i>🏠</i> 首页</button>
-            <button class="nav-btn"><i>📊</i> 数据管理</button>
-            <button class="nav-btn"><i>🔧</i> 工具</button>
-          </div>
         </div>
         <div class="nav-buttons">
-          <button class="nav-btn"><i>👤</i> 用户信息</button>
           <button class="nav-btn"><i>⚙️</i> 系统设置</button>
-          <button class="nav-btn"><i>❓</i> 帮助文档</button>
+
+          <button class="nav-btn"><i>👤</i> 用户信息</button>
         </div>
       </div>
 
@@ -1067,101 +1135,138 @@
       <div class="main-content">
         <!-- 左侧工具面板 -->
         <div class="left-panel">
-          <div class="panel-header">
-            <div class="panel-title">图层与工具</div>
-            <button class="collapse-btn">◀</button>
-          </div>
-          <div class="panel-content">
-            <!-- 快速操作栏 -->
-            <div class="quick-actions">
-              <div class="quick-actions-title">快速操作</div>
-              <div class="quick-buttons">
-                <button class="quick-btn primary"><i>🎯</i> 定位</button>
-                <button class="quick-btn"><i>🔍</i> 搜索</button>
-                <button class="quick-btn"><i>📏</i> 测量</button>
-                <button class="quick-btn"><i>💾</i> 保存</button>
+          <!-- 图标栏 -->
+          <div class="icon-bar">
+            <!-- 快速操作 -->
+            <div class="function-icon" data-function="quick-actions">
+              ⚡
+              <div class="hover-panel" data-target="quick-actions">
+                <div class="hover-panel-content">
+                  <div class="function-group">
+                    <div class="function-group-title">快速操作</div>
+                    <div class="quick-buttons">
+                      <button class="quick-btn primary"><i>🎯</i> 定位</button>
+                      <button class="quick-btn"><i>🔍</i> 搜索</button>
+                      <button class="quick-btn"><i>📏</i> 测量</button>
+                      <button class="quick-btn"><i>💾</i> 保存</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- 图层管理 -->
-            <div class="layer-section">
-              <div class="layer-section-title">图层管理</div>
-              <div class="layer-list">
-                <div class="layer-item">
-                  <div class="layer-icon tiles-icon"></div>
-                  <div class="layer-info">
-                    <div class="layer-name">管线三维模型</div>
-                    <div class="layer-status">已加载</div>
-                  </div>
-                  <div class="layer-controls">
-                    <div class="layer-toggle active"></div>
-                  </div>
-                </div>
-                <div class="layer-item">
-                  <div class="layer-icon sensor-icon"></div>
-                  <div class="layer-info">
-                    <div class="layer-name">传感器点位</div>
-                    <div class="layer-status">已加载</div>
-                  </div>
-                  <div class="layer-controls">
-                    <div class="layer-toggle active"></div>
-                  </div>
-                </div>
-                <div class="layer-item">
-                  <div class="layer-icon pipe-icon"></div>
-                  <div class="layer-info">
-                    <div class="layer-name">地下管网</div>
-                    <div class="layer-status">已加载</div>
-                  </div>
-                  <div class="layer-controls">
-                    <div class="layer-toggle active"></div>
+            <div class="function-icon" data-function="layers">
+              📊
+              <div class="hover-panel" data-target="layers">
+                <div class="hover-panel-content">
+                  <div class="function-group">
+                    <div class="function-group-title">图层管理</div>
+                    <div class="layer-list">
+                      <div class="layer-item">
+                        <div class="layer-icon tiles-icon"></div>
+                        <div class="layer-info">
+                          <div class="layer-name">管线三维模型</div>
+                          <div class="layer-status">已加载</div>
+                        </div>
+                        <div class="layer-controls">
+                          <div class="layer-toggle active"></div>
+                        </div>
+                      </div>
+                      <div class="layer-item">
+                        <div class="layer-icon sensor-icon"></div>
+                        <div class="layer-info">
+                          <div class="layer-name">传感器点位</div>
+                          <div class="layer-status">已加载</div>
+                        </div>
+                        <div class="layer-controls">
+                          <div class="layer-toggle active"></div>
+                        </div>
+                      </div>
+                      <div class="layer-item">
+                        <div class="layer-icon pipe-icon"></div>
+                        <div class="layer-info">
+                          <div class="layer-name">地下管网</div>
+                          <div class="layer-status">已加载</div>
+                        </div>
+                        <div class="layer-controls">
+                          <div class="layer-toggle active"></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- 绘制工具 -->
-            <div class="tools-panel">
-              <div class="tool-section">
-                <div class="tool-section-title">绘制工具</div>
-                <div class="tool-buttons">
-                  <button class="tool-btn"><i>📍</i> 绘制点</button>
-                  <button class="tool-btn"><i>📏</i> 绘制线</button>
-                  <button class="tool-btn"><i>🔲</i> 绘制面</button>
-                  <button class="tool-btn"><i>🔄</i> 编辑</button>
+            <div class="function-icon" data-function="draw">
+              ✏️
+              <div class="hover-panel" data-target="draw">
+                <div class="hover-panel-content">
+                  <div class="function-group">
+                    <div class="function-group-title">绘制工具</div>
+                    <div class="tool-buttons">
+                      <button class="tool-btn"><i>📍</i> 绘制点</button>
+                      <button class="tool-btn"><i>📏</i> 绘制线</button>
+                      <button class="tool-btn"><i>🔲</i> 绘制面</button>
+                      <button class="tool-btn"><i>🔄</i> 编辑</button>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 测量工具 -->
-              <div class="tool-section">
-                <div class="tool-section-title">测量工具</div>
-                <div class="tool-buttons">
-                  <button class="tool-btn"><i>📐</i> 距离测量</button>
-                  <button class="tool-btn"><i>📊</i> 面积测量</button>
-                  <button class="tool-btn"><i>📏</i> 高度测量</button>
-                  <button class="tool-btn"><i>📐</i> 角度测量</button>
+            <!-- 测量工具 -->
+            <div class="function-icon" data-function="measure">
+              📐
+              <div class="hover-panel" data-target="measure">
+                <div class="hover-panel-content">
+                  <div class="function-group">
+                    <div class="function-group-title">测量工具</div>
+                    <div class="tool-buttons">
+                      <button class="tool-btn"><i>📐</i> 距离测量</button>
+                      <button class="tool-btn"><i>📊</i> 面积测量</button>
+                      <button class="tool-btn"><i>📏</i> 高度测量</button>
+                      <button class="tool-btn"><i>📐</i> 角度测量</button>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 查询工具 -->
-              <div class="tool-section">
-                <div class="tool-section-title">查询工具</div>
-                <div class="tool-buttons">
-                  <button class="tool-btn"><i>🔍</i> 空间查询</button>
-                  <button class="tool-btn"><i>📋</i> 属性查询</button>
-                  <button class="tool-btn"><i>📊</i> 统计分析</button>
-                  <button class="tool-btn"><i>📈</i> 历史数据</button>
+            <!-- 查询工具 -->
+            <div class="function-icon" data-function="query">
+              🔍
+              <div class="hover-panel" data-target="query">
+                <div class="hover-panel-content">
+                  <div class="function-group">
+                    <div class="function-group-title">查询工具</div>
+                    <div class="tool-buttons">
+                      <button class="tool-btn"><i>🔍</i> 空间查询</button>
+                      <button class="tool-btn"><i>📋</i> 属性查询</button>
+                      <button class="tool-btn"><i>📊</i> 统计分析</button>
+                      <button class="tool-btn"><i>📈</i> 历史数据</button>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 分析工具 -->
-              <div class="tool-section">
-                <div class="tool-section-title">分析工具</div>
-                <div class="tool-buttons">
-                  <button class="tool-btn"><i>🌊</i> 流向分析</button>
-                  <button class="tool-btn"><i>⚠️</i> 风险分析</button>
-                  <button class="tool-btn"><i>📊</i> 容量分析</button>
-                  <button class="tool-btn"><i>🔧</i> 维护计划</button>
+            <!-- 分析工具 -->
+            <div class="function-icon" data-function="analyze">
+              📊
+              <div class="hover-panel" data-target="analyze">
+                <div class="hover-panel-content">
+                  <div class="function-group">
+                    <div class="function-group-title">分析工具</div>
+                    <div class="tool-buttons">
+                      <button class="tool-btn"><i>🌊</i> 流向分析</button>
+                      <button class="tool-btn"><i>⚠️</i> 风险分析</button>
+                      <button class="tool-btn"><i>📊</i> 容量分析</button>
+                      <button class="tool-btn"><i>🔧</i> 维护计划</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1182,10 +1287,6 @@
 
         <!-- 右侧信息面板 -->
         <div class="right-panel">
-          <div class="panel-header">
-            <div class="panel-title">信息面板</div>
-            <button class="collapse-btn">▶</button>
-          </div>
           <div class="info-tabs">
             <div class="info-tab active"><i>📋</i> 属性信息</div>
             <div class="info-tab"><i>🔍</i> 查询结果</div>
@@ -1271,24 +1372,162 @@
     </div>
 
     <script>
-      // 面板收缩功能
-      document.querySelectorAll(".collapse-btn").forEach((btn) => {
+      // 左侧图标悬停面板功能
+      document.addEventListener("DOMContentLoaded", function () {
+        const functionIcons = document.querySelectorAll(".function-icon");
+        console.log("找到功能图标数量:", functionIcons.length);
+
+        // 跟踪激活的面板，用于滚动时更新位置
+        let activePanel = null;
+        let activeIcon = null;
+
+        functionIcons.forEach((icon, index) => {
+          const hoverPanel = icon.querySelector(".hover-panel");
+          if (!hoverPanel) {
+            console.log("图标", index, "没有找到hover-panel");
+            return;
+          }
+
+          // 图标点击显示/隐藏面板
+          icon.addEventListener("click", function (e) {
+            e.stopPropagation();
+            // 移除 preventDefault，可能干扰正常的事件处理
+
+            // 检查当前面板是否已显示且是当前激活的
+            const isPanelShowing = hoverPanel.classList.contains("show");
+            const isCurrentActive = icon === activeIcon;
+
+            console.log(
+              "点击图标:",
+              index,
+              "面板显示:",
+              isPanelShowing,
+              "当前激活:",
+              isCurrentActive
+            );
+
+            // 如果点击的是当前显示的面板，则切换隐藏
+            if (isPanelShowing && isCurrentActive) {
+              // 隐藏当前面板
+              hoverPanel.classList.remove("show");
+              icon.classList.remove("active");
+              activePanel = null;
+              activeIcon = null;
+              console.log("点击已显示的面板，隐藏:", index);
+            } else {
+              // 关闭所有其他面板
+              document.querySelectorAll(".hover-panel").forEach((panel) => {
+                if (panel !== hoverPanel) {
+                  panel.classList.remove("show");
+                }
+              });
+              document.querySelectorAll(".function-icon").forEach((i) => {
+                if (i !== icon) {
+                  i.classList.remove("active");
+                }
+              });
+
+              // 计算并更新面板位置
+              const iconRect = icon.getBoundingClientRect();
+              const panelLeft = iconRect.right;
+              const panelTop = iconRect.top;
+              const panelHeight = Math.min(
+                iconRect.height,
+                window.innerHeight - iconRect.top - 50
+              );
+
+              console.log("计算面板位置:", {
+                panelLeft,
+                panelTop,
+                panelHeight,
+                iconRect,
+              });
+
+              // 检查面板当前是否显示
+              const wasShowing = hoverPanel.classList.contains("show");
+
+              if (wasShowing) {
+                // 如果已经在显示，先短暂隐藏并禁用过渡，避免位置更新时的闪烁
+                hoverPanel.style.transition = "none";
+                hoverPanel.classList.remove("show");
+                // 设置新位置
+                hoverPanel.style.left = `${panelLeft}px`;
+                hoverPanel.style.top = `${panelTop}px`;
+                hoverPanel.style.height = `${panelHeight}px`;
+                // 使用 RAF 确保位置设置后再显示
+                requestAnimationFrame(() => {
+                  hoverPanel.style.transition = "";
+                  hoverPanel.classList.add("show");
+                  console.log("面板位置更新后重新显示");
+                });
+              } else {
+                // 面板未显示，先设置位置（确保位置正确）
+                hoverPanel.style.left = `${panelLeft}px`;
+                hoverPanel.style.top = `${panelTop}px`;
+                hoverPanel.style.height = `${panelHeight}px`;
+
+                // 强制立即显示，不等待CSS过渡
+                // 先禁用过渡，设置可见状态，然后重新启用过渡
+                hoverPanel.style.transition = "none";
+                hoverPanel.style.opacity = "1";
+                hoverPanel.style.width = "280px";
+                hoverPanel.classList.add("show");
+
+                // 使用 RAF 重新启用过渡，用于后续的状态变化
+                requestAnimationFrame(() => {
+                  hoverPanel.style.transition = "";
+                  hoverPanel.style.opacity = "";
+                  hoverPanel.style.width = "";
+                  console.log(
+                    "面板立即显示，位置:",
+                    hoverPanel.style.left,
+                    hoverPanel.style.top
+                  );
+                });
+              }
+
+              // 更新激活状态（立即更新，不等待过渡）
+              icon.classList.add("active");
+              activePanel = hoverPanel;
+              activeIcon = icon;
+              console.log(
+                "点击显示面板:",
+                index,
+                "位置:",
+                iconRect.right,
+                iconRect.top
+              );
+            }
+          });
+        });
+
+        // 监听窗口滚动和调整大小，更新面板位置
+        function updatePanelPosition() {
+          if (activePanel && activeIcon) {
+            const iconRect = activeIcon.getBoundingClientRect();
+            activePanel.style.left = `${iconRect.right}px`;
+            activePanel.style.top = `${iconRect.top}px`;
+            activePanel.style.height = `${Math.min(
+              iconRect.height,
+              window.innerHeight - iconRect.top - 50
+            )}px`;
+          }
+        }
+
+        window.addEventListener("scroll", updatePanelPosition, true);
+        window.addEventListener("resize", updatePanelPosition);
+      });
+
+      // 右侧面板收缩功能
+      document.querySelectorAll(".right-panel .collapse-btn").forEach((btn) => {
         btn.addEventListener("click", function () {
-          const panel = this.closest(".left-panel, .right-panel");
+          const panel = this.closest(".right-panel");
           panel.classList.toggle("collapsed");
 
           if (panel.classList.contains("collapsed")) {
-            if (panel.classList.contains("left-panel")) {
-              this.textContent = "▶";
-            } else {
-              this.textContent = "◀";
-            }
+            this.textContent = "◀";
           } else {
-            if (panel.classList.contains("left-panel")) {
-              this.textContent = "◀";
-            } else {
-              this.textContent = "▶";
-            }
+            this.textContent = "▶";
           }
         });
       });
@@ -1314,10 +1553,12 @@
       document.querySelectorAll(".tool-btn").forEach((btn) => {
         btn.addEventListener("click", function () {
           // 移除同组其他按钮的激活状态
-          const section = this.closest(".tool-section");
-          section
-            .querySelectorAll(".tool-btn")
-            .forEach((b) => b.classList.remove("active"));
+          const section = this.closest(".function-group");
+          if (section) {
+            section
+              .querySelectorAll(".tool-btn")
+              .forEach((b) => b.classList.remove("active"));
+          }
           // 激活当前按钮
           this.classList.add("active");
         });

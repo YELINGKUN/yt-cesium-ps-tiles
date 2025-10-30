@@ -9,6 +9,14 @@ const routes = [
     component: () => import("../components/HelloWorld.vue"),
   },
   {
+    path: "/ps",
+    component: () => import("../components/ps/Index.vue"),
+  },
+  {
+    path: "/layout",
+    component: () => import("../components/layout/BaseLayout.vue"),
+  },
+  {
     path: "/helloWorld",
     component: () => import("../components/HelloWorld.vue"),
   },
